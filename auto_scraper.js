@@ -40,7 +40,7 @@ async function runAutoScraper() {
         if ($(el).hasClass('top')) return;
         
         const titleRaw = $(el).find('.tit a').text().trim();
-        const title = titleRaw.replace(/SPECIAL/g, '').replace(/IDEA/g, '').trim();
+        const title = titleRaw;
         if (!title) return;
 
         const organizer = $(el).find('.organ').text().trim();
