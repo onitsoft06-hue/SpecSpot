@@ -17,9 +17,20 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const WEVITY_URLS = [
+  // 과학/IT (IT, 소프트웨어, 게임)
   { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=21', category: '과학/IT' },
-  { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=22', category: '과학/IT' },
+  { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=21&p=2', category: '과학/IT' },
+  { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=21&p=3', category: '과학/IT' },
+  
+  // 인문/사회 (기획, 아이디어, 마케팅, 논문)
   { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=1', category: '인문/사회' },
+  { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=1&p=2', category: '인문/사회' },
+  { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=2', category: '인문/사회' },
+  { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=2&p=2', category: '인문/사회' },
+
+  // 예술/체육 (디자인, 캐릭터, 웹툰, 예체능)
+  { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=14', category: '예술/체육' },
+  { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=14&p=2', category: '예술/체육' },
   { url: 'https://www.wevity.com/?c=find&s=1&gub=1&cidx=26', category: '예술/체육' }
 ];
 
