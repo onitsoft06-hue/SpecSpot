@@ -57,6 +57,12 @@ async function runAutoScraper() {
         const organizer = $(el).find('.organ').text().trim();
         const dDayRaw = $(el).find('.day').text().trim();
         
+        // 1. 마감된 대회 제외
+        if (dDayRaw.includes('마감')) return;
+        
+        // 2. 중복 제거 (이미 동일한 제목이 배열에 있으면 무시)
+        if (allCompetitions.some(c => c.title === title)) return;
+        
         let dDayStr = '';
         if (dDayRaw.includes('D-')) {
           const days = parseInt(dDayRaw.split('D-')[1]);
@@ -83,11 +89,31 @@ async function runAutoScraper() {
           'https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?w=500&q=80'
         ];
         const image_url = images[Math.floor(Math.random() * images.length)];
-        const regionsList = ['서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
+        // 3. 지능형 지역(도 단위) 추출 알고리즘
+        const regionMap = [
+          { keyword: ['서울', '강남', '종로', '서초', '송파', '여의도'], region: '서울' },
+          { keyword: ['부산', '해운대', '서면', '광안리'], region: '부산' },
+          { keyword: ['대구', '동성로', '수성구'], region: '대구' },
+          { keyword: ['인천', '송도', '부평'], region: '인천' },
+          { keyword: ['광주', '상무지구'], region: '광주' },
+          { keyword: ['대전', '유성'], region: '대전' },
+          { keyword: ['울산', '남구'], region: '울산' },
+          { keyword: ['세종'], region: '세종' },
+          { keyword: ['경기', '수원', '성남', '고양', '용인', '부천', '안산', '안양', '남양주', '화성', '평택', '의정부', '파주', '시흥', '김포', '광명', '군포', '하남', '오산', '이천', '양주', '구리', '안성', '의왕', '포천', '양평', '여주', '동두천', '과천', '가평', '연천'], region: '경기' },
+          { keyword: ['강원', '춘천', '원주', '강릉', '동해', '태백', '속초', '삼척'], region: '강원' },
+          { keyword: ['충북', '청주', '충주', '제천', '보은', '옥천', '영동', '증평', '진천', '괴산', '음성', '단양'], region: '충북' },
+          { keyword: ['충남', '천안', '공주', '보령', '아산', '서산', '논산', '계룡', '당진', '금산', '부여', '서천', '청양', '홍성', '예산', '태안'], region: '충남' },
+          { keyword: ['전북', '전주', '군산', '익산', '정읍', '남원', '김제', '완주', '진안', '무주', '장수', '임실', '순창', '고창', '부안'], region: '전북' },
+          { keyword: ['전남', '목포', '여수', '순천', '나주', '광양', '담양', '곡성', '구례', '고흥', '보성', '화순', '장흥', '강진', '해남', '영암', '무안', '함평', '영광', '장성', '완도', '진도', '신안'], region: '전남' },
+          { keyword: ['경북', '포항', '경주', '김천', '안동', '구미', '영주', '영천', '상주', '문경', '경산', '군위', '의성', '청송', '영양', '영덕', '청도', '고령', '성주', '칠곡', '예천', '봉화', '울진', '울릉'], region: '경북' },
+          { keyword: ['경남', '창원', '진주', '통영', '사천', '김해', '밀양', '거제', '양산', '의령', '함안', '창녕', '고성', '남해', '하동', '산청', '함양', '거창', '합천'], region: '경남' },
+          { keyword: ['제주', '서귀포'], region: '제주' }
+        ];
+
         let extractedRegion = '전국'; // 기본값
-        for (const r of regionsList) {
-          if (organizer.includes(r) || title.includes(r)) {
-            extractedRegion = r;
+        for (const entry of regionMap) {
+          if (entry.keyword.some(k => organizer.includes(k) || title.includes(k))) {
+            extractedRegion = entry.region;
             break;
           }
         }
