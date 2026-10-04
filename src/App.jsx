@@ -282,7 +282,13 @@ const HomePage = ({ savedIds, onSave, allCompetitions, setDetailComp, profile, a
   };
 
   const displayedComps = searchedRegion 
-    ? allCompetitions.filter(comp => comp.region.includes(searchedRegion))
+    ? allCompetitions.filter(comp => {
+        const query = searchedRegion.replace(/\s+/g, '').toLowerCase();
+        const titleMatch = comp.title.replace(/\s+/g, '').toLowerCase().includes(query);
+        const regionMatch = comp.region.replace(/\s+/g, '').toLowerCase().includes(query);
+        const descMatch = (comp.description || '').replace(/\s+/g, '').toLowerCase().includes(query);
+        return titleMatch || regionMatch || descMatch;
+      })
     : allCompetitions;
 
   // AI 맞춤 추천 알고리즘:
@@ -382,7 +388,10 @@ const SearchPage = ({ savedIds, onSave, allCompetitions, setDetailComp }) => {
   const categories = ['전체', '과학/IT', '인문/사회', '예술/체육', '수학'];
 
   const filteredComps = allCompetitions.filter(comp => {
-    const matchSearch = comp.title.includes(searchTerm) || comp.region.includes(searchTerm);
+    const query = searchTerm.replace(/\s+/g, '').toLowerCase();
+    const matchSearch = comp.title.replace(/\s+/g, '').toLowerCase().includes(query) || 
+                        comp.region.replace(/\s+/g, '').toLowerCase().includes(query) ||
+                        (comp.description || '').replace(/\s+/g, '').toLowerCase().includes(query);
     const matchCat = activeCategory === '전체' || comp.category === activeCategory;
     return matchSearch && matchCat;
   });

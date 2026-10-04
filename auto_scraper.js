@@ -72,12 +72,21 @@ async function runAutoScraper() {
           'https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?w=500&q=80'
         ];
         const image_url = images[Math.floor(Math.random() * images.length)];
+        const regionsList = ['서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
+        let extractedRegion = '전국'; // 기본값
+        for (const r of regionsList) {
+          if (organizer.includes(r) || title.includes(r)) {
+            extractedRegion = r;
+            break;
+          }
+        }
+
         const record_tip = `[주최: ${organizer}] ${target.category} 관련 진로 및 자율동아리 활동으로 생기부에 기재하기 좋은 최신 대회입니다.`;
 
         allCompetitions.push({
           title,
           category: target.category,
-          region: '전국',
+          region: extractedRegion,
           description: `주최: ${organizer}`,
           record_tip,
           d_day: dDayStr,
