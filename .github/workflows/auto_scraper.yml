@@ -1,0 +1,30 @@
+name: Auto Daily Scraper
+
+on:
+  schedule:
+    # 매일 자정 (한국시간 오전 9시)에 자동 실행됩니다.
+    - cron: '0 0 * * *'
+  # GitHub 사이트에서 수동으로 [Run workflow] 버튼을 눌러 즉시 실행할 수도 있습니다.
+  workflow_dispatch:
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 코드 불러오기
+        uses: actions/checkout@v4
+      
+      - name: 런타임(Node.js) 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: 의존성 패키지 설치
+        run: npm install @supabase/supabase-js cheerio axios dotenv
+        
+      - name: 로봇 크롤링 및 서버(Supabase) 직접 밀어넣기 가동
+        run: node auto_scraper.js
+        env:
+          # Settings > Secrets and variables > Actions 에 등록할 비밀 키
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
