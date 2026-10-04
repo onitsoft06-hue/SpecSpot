@@ -47,21 +47,22 @@ async function runAutoScraper() {
       });
       const $ = cheerio.load(response.data);
       
-      $('ul.list > li').each((i, el) => {
-        if ($(el).hasClass('top')) return;
+      const listItems = $('ul.list > li').toArray();
+      for (const el of listItems) {
+        if ($(el).hasClass('top')) continue;
         
         const titleRaw = $(el).find('.tit a').text().trim();
         const title = titleRaw;
-        if (!title) return;
+        if (!title) continue;
 
         const organizer = $(el).find('.organ').text().trim();
         const dDayRaw = $(el).find('.day').text().trim();
         
         // 1. 마감된 대회 제외
-        if (dDayRaw.includes('마감')) return;
+        if (dDayRaw.includes('마감')) continue;
         
         // 2. 중복 제거 (이미 동일한 제목이 배열에 있으면 무시)
-        if (allCompetitions.some(c => c.title === title)) return;
+        if (allCompetitions.some(c => c.title === title)) continue;
         
         let dDayStr = '';
         if (dDayRaw.includes('D-')) {
@@ -88,7 +89,24 @@ async function runAutoScraper() {
           'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500&q=80',
           'https://images.unsplash.com/photo-1515378960530-7c0da6231fb1?w=500&q=80'
         ];
-        const image_url = images[Math.floor(Math.random() * images.length)];
+        let image_url = images[Math.floor(Math.random() * images.length)];
+
+        // 진짜 포스터 이미지 크롤링 (상세 페이지 접속)
+        if (linkRaw) {
+          try {
+            const detailRes = await axios.get(organizer_url, {
+              headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+            });
+            const detail$ = cheerio.load(detailRes.data);
+            const posterSrc = detail$('.thumb img').attr('src');
+            if (posterSrc) {
+              image_url = `https://www.wevity.com${posterSrc.startsWith('/') ? '' : '/'}${posterSrc}`;
+            }
+            await sleep(300); // 서버 과부하 방지
+          } catch(e) {
+            // 상세 페이지 오류시 무시하고 기본 이미지 사용
+          }
+        }
         // 3. 지능형 지역(도 단위) 추출 알고리즘
         const regionMap = [
           { keyword: ['서울', '강남', '종로', '서초', '송파', '여의도'], region: '서울' },
@@ -130,7 +148,7 @@ async function runAutoScraper() {
           image_url,
           organizer_url
         });
-      });
+      }
       console.log(`✅ ${target.category} 크롤링 완료 (${allCompetitions.length}개 누적)`);
       await sleep(2000);
     } catch (error) {
